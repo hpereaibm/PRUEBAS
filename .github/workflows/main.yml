@@ -1,0 +1,40 @@
+name: PyGoat and HCL AppScan SAST Analysis
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  sast_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4  # Updated for consistency
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run AppScan SAST scan
+        uses: HCL-TECH-SOFTWARE/appscan-sast-action@v1.0.6
+        with:
+          asoc_key: ${{ secrets.APPSCAN_API_KEY }}
+          asoc_secret: ${{ secrets.APPSCAN_API_SECRET }}
+          application_id: 1d056f9e-dae7-4edc-b78f-69ffe2937f2d
+
+      - name: Create report directory
+        run: mkdir -p report
+
+      - name: Save SAST Report
+        run: mv sast-report report/
